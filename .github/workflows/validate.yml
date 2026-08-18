@@ -5,25 +5,38 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  validate:
+  config:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Install JSON Schema validator
-        run: pip install check-jsonschema
-
-      - name: Validate examples, schema, and signer
-        run: ./scripts/test.sh
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Validate example and device files
+        run: |
+          python3 scripts/validate-config.py \
+            examples/0123456789ABCDEF.yml --bind-filename
+          shopt -s nullglob
+          for file in ./*.yml; do
+            python3 scripts/validate-config.py "$file" --bind-filename
+            test -f "$file.asc"
+          done
+      - name: Smoke-test signer
+        run: |
+          bash -n scripts/sign-config.sh
+          export GNUPGHOME
+          GNUPGHOME=$(mktemp -d)
+          chmod 700 "$GNUPGHOME"
+          gpg --batch --passphrase '' --quick-generate-key \
+            "InventoryConfig CI <ci@invalid>" ed25519 sign never
+          key=$(gpg --batch --list-secret-keys --with-colons |
+            awk -F: '$1 == "fpr" { print $10; exit }')
+          cp examples/0123456789ABCDEF.yml /tmp/0123456789ABCDEF.yml
+          scripts/sign-config.sh /tmp/0123456789ABCDEF.yml "$key"
