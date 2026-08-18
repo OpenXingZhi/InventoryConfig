@@ -1,0 +1,8 @@
+revision: 1
+license:
+  sn: "0123456789ABCDEF"
+server:
+  url: "https://inventory.example.invalid/"
+display:
+  showShelfDescription: false
+  sort: SHELF_AND_CLC

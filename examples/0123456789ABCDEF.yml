@@ -1,0 +1,35 @@
+# Example only. This is not a runtime device file.
+# Copy it to /<ANDROID_ID>.yml at the repository root, replace license.sn
+# with that device's uppercase Android ID, then sign. Never publish this
+# filename at the root as a wildcard license.
+#
+# license.expire must be a quoted four-digit YYYY-MM-DD calendar date.
+# That is this repository's decoder convention, passed to
+# kotlinx.datetime.LocalDate.parse for license-library 1.0.2's LocalDate
+# field. Default kotlinx-datetime 0.6.1 LocalDate.parse is extended
+# ISO-8601; this repository does not accept other lexical forms.
+# The expiry date is inclusive.
+
+revision: 1
+
+license:
+  sn: "0123456789ABCDEF"
+  expire: "2027-12-31"
+
+server:
+  url: "https://inventory.example.invalid/"
+
+reader:
+  deviceType: RPAN
+  commType: Bluetooth
+  rfidType: HF
+  dataFormat: ISO
+  checkSecurity: false
+  securityType: AFI_EAS
+  afiInLib: "07"
+  afiOutLib: "C2"
+  onlyReadBookUid: false
+
+display:
+  showShelfDescription: false
+  sort: SHELF_AND_CLC

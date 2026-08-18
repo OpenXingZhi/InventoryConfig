@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/OpenXingZhi/InventoryConfig/schema/inventory-config.schema.json",
+  "title": "Inventory signed device configuration",
+  "description": "Authoritative per-device Inventory settings. The filename and license.sn are the uppercase Android ID. There is no default or wildcard document; unprovisioned devices fail closed. extra/session keys are rejected.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["revision", "license", "server", "reader", "display"],
+  "properties": {
+    "revision": {
+      "description": "Positive monotonic integer covered by the detached signature. remote-config 1.2.0 MonotonicLongRevisionPolicy rejects a lower revision and same-revision content changes.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "license": {
+      "description": "license-library 1.0.2 entitlement. Omit expire for License.Permanent; set expire for License.Temporary. The expiry date is inclusive.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sn"],
+      "properties": {
+        "sn": {
+          "description": "Uppercase Settings.Secure.ANDROID_ID. Must equal the runtime filename stem and the remote-config refresh key. Inventory DeviceInfoUtil.getSN() already uppercases the identifier.",
+          "type": "string",
+          "pattern": "^[0-9A-F]{16}$"
+        },
+        "expire": {
+          "description": "Quoted four-digit YYYY-MM-DD calendar date. This is the InventoryConfig decoder convention: the value is passed to kotlinx.datetime.LocalDate.parse for license-library 1.0.2's License.Temporary.expire (a LocalDate). Default LocalDate.parse in kotlinx-datetime 0.6.1 uses extended ISO-8601 and may accept other lexical forms; those are outside this repository's contract. Quote the value so YAML 1.1 loaders do not coerce it to a timestamp. The date is inclusive: expire < trustedDate is expired.",
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        }
+      }
+    },
+    "server": {
+      "description": "Inventory HTTP API. Maps to AppConst.ServerAddr. There is no repository fallback URL.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": {
+        "url": {
+          "description": "Retrofit base URL stored as SharedPreferences key ServerAddr. Inventory’s live UI sample is R.string.server_addr_Sample (http://192.168.2.12:5000/); AppConst.DefaultServerAddr is unused. Neither string is a runtime fallback in this repository. Prefer a trailing slash.",
+          "type": "string",
+          "minLength": 8,
+          "pattern": "^https?://[^\\s]+$"
+        }
+      }
+    },
+    "reader": {
+      "description": "Authoritative RFID reader and tag-mode settings. Every modeled field is required. A valid signed document must not inherit mutable SharedPreferences or Inventory local defaults. Bluetooth pairing (DevPath, ConnectionString) is local session state and must not appear here.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deviceType",
+        "commType",
+        "rfidType",
+        "dataFormat",
+        "checkSecurity",
+        "securityType",
+        "afiInLib",
+        "afiOutLib",
+        "onlyReadBookUid"
+      ],
+      "properties": {
+        "deviceType": {
+          "description": "AppConst.DevType. Current Inventory default AppConst.DefaultDevType is RPAN; ConnectionStringFormat also hardcodes RDType=RPAN.",
+          "type": "string",
+          "enum": ["RPAN"]
+        },
+        "commType": {
+          "description": "AppConst.CommType. Current Inventory default AppConst.DefaultCommType is Bluetooth; ConnectionStringFormat hardcodes CommType=BLUETOOTH.",
+          "type": "string",
+          "enum": ["Bluetooth"]
+        },
+        "rfidType": {
+          "description": "AppConst.CurrentRfidType. ReadTagDataUseCase.RFIDType: HF=0, UHF=1. Current Inventory default is HF.",
+          "type": "string",
+          "enum": ["HF", "UHF"]
+        },
+        "dataFormat": {
+          "description": "AppConst.CurrentDataFormat. arrays.xml dataFormat spinner: ISO=0, CUSTOM=1. Current Inventory default selection is 0 (ISO).",
+          "type": "string",
+          "enum": ["ISO", "CUSTOM"]
+        },
+        "checkSecurity": {
+          "description": "AppConst.CurrentCheckSecurity. SettingActivity checkbox default is unchecked (false).",
+          "type": "boolean"
+        },
+        "securityType": {
+          "description": "AppConst.CurrentSecurityType. arrays.xml securityType spinner: AFI + EAS=0, EAS=1, AFI=2.",
+          "type": "string",
+          "enum": ["AFI_EAS", "EAS", "AFI"]
+        },
+        "afiInLib": {
+          "description": "AppConst.CurrentAfiInLib. Two hex digits written by RPan.doWriteAIF. Setting UI hint is 07.",
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{2}$"
+        },
+        "afiOutLib": {
+          "description": "AppConst.CurrentAfiOutLib. Two hex digits. Setting UI hint is C2.",
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{2}$"
+        },
+        "onlyReadBookUid": {
+          "description": "AppConst.OnlyReadBookUID. ReadTagDataUseCase default is false.",
+          "type": "boolean"
+        }
+      }
+    },
+    "display": {
+      "description": "Authoritative Inventory display and shelf-management behavior. Every modeled field is required. A valid signed document must not inherit mutable SharedPreferences or Inventory local defaults. Current inventory task identity is session state and must not appear here.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["showShelfDescription", "sort"],
+      "properties": {
+        "showShelfDescription": {
+          "description": "AppConst.ShowShelfDescription. InventoryAdapter / SettingActivity default is false.",
+          "type": "boolean"
+        },
+        "sort": {
+          "description": "AppConst.CurrentSort. arrays.xml sortType spinner: 架位绑定 + 中图法排序=0, 架位绑定=1, 中图法排序=2.",
+          "type": "string",
+          "enum": ["SHELF_AND_CLC", "SHELF", "CLC"]
+        }
+      }
+    }
+  }
+}
