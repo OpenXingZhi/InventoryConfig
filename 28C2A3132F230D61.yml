@@ -1,0 +1,22 @@
+revision: 1
+
+license:
+  sn: "28C2A3132F230D61"
+
+server:
+  url: "http://192.168.2.12:5000/"
+
+reader:
+  deviceType: RPAN
+  commType: Bluetooth
+  rfidType: HF
+  dataFormat: ISO
+  checkSecurity: false
+  securityType: AFI_EAS
+  afiInLib: "07"
+  afiOutLib: "C2"
+  onlyReadBookUid: false
+
+display:
+  showShelfDescription: false
+  sort: SHELF_AND_CLC
