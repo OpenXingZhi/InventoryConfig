@@ -26,8 +26,10 @@ jobs:
           shopt -s nullglob
           for file in ./*.yml; do
             python3 scripts/validate-config.py "$file" --bind-filename
-            test -f "$file.asc"
           done
+          bash -n scripts/verify-signatures.sh
+          scripts/verify-signatures.sh
+          scripts/verify-signatures.sh --tamper-check
       - name: Smoke-test signer
         run: |
           bash -n scripts/sign-config.sh
