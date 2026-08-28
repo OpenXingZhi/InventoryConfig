@@ -68,7 +68,7 @@
           "enum": ["Bluetooth"]
         },
         "encoding": {
-          "description": "Sealed RFID encoding profile. type selects the air interface; standard selects ISO / GB / CULTU. HF and UHF do not share standard or security leaves.",
+          "description": "Sealed RFID encoding profile. HF uses standard. UHF splits book and optional shelf encodings.",
           "oneOf": [
             { "$ref": "#/$defs/hfEncoding" },
             { "$ref": "#/$defs/uhfEncoding" }
@@ -124,16 +124,37 @@
     "uhfEncoding": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "standard", "security"],
+      "required": ["type", "book", "security"],
       "properties": {
         "type": { "const": "UHF" },
-        "standard": {
-          "description": "CULTU_V4 is the only UHF decoder this release. ISO28560_4 and GBT35660_3 may be provisioned.",
-          "type": "string",
-          "enum": ["CULTU_V4", "ISO28560_4", "GBT35660_3"]
-        },
+        "book": { "$ref": "#/$defs/uhfItemEncoding" },
+        "shelf": { "$ref": "#/$defs/uhfItemEncoding" },
         "security": { "$ref": "#/$defs/uhfSecurity" }
       }
+    },
+    "uhfItemEncoding": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["encoding"],
+          "properties": {
+            "encoding": {
+              "type": "string",
+              "enum": ["CULTU_V4", "ISO28560_4", "GBT35660_3"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["encoding", "prefix"],
+          "properties": {
+            "encoding": { "const": "ASCII" },
+            "prefix": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
     },
     "hfSecurity": {
       "oneOf": [
