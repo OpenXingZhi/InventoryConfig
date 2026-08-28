@@ -4,7 +4,7 @@ license:
   sn: "2C4A45BCF13744E9"
 
 server:
-  url: "http://192.168.2.12:5000/"
+  url: "https://10.2.41.118:53001"
 
 reader:
   deviceType: RPAN
