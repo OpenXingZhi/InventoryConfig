@@ -52,12 +52,8 @@
       "required": [
         "deviceType",
         "commType",
-        "rfidType",
-        "dataFormat",
+        "encoding",
         "checkSecurity",
-        "securityType",
-        "afiInLib",
-        "afiOutLib",
         "onlyReadBookUid"
       ],
       "properties": {
@@ -71,37 +67,19 @@
           "type": "string",
           "enum": ["Bluetooth"]
         },
-        "rfidType": {
-          "description": "AppConst.CurrentRfidType. ReadTagDataUseCase.RFIDType: HF=0, UHF=1. Current Inventory default is HF.",
-          "type": "string",
-          "enum": ["HF", "UHF"]
-        },
-        "dataFormat": {
-          "description": "AppConst.CurrentDataFormat. arrays.xml dataFormat spinner: ISO=0, CUSTOM=1. Current Inventory default selection is 0 (ISO).",
-          "type": "string",
-          "enum": ["ISO", "CUSTOM"]
+        "encoding": {
+          "description": "Sealed RFID encoding profile. type selects the air interface; standard selects ISO / GB / CULTU. HF and UHF do not share standard or security leaves.",
+          "oneOf": [
+            { "$ref": "#/$defs/hfEncoding" },
+            { "$ref": "#/$defs/uhfEncoding" }
+          ]
         },
         "checkSecurity": {
-          "description": "AppConst.CurrentCheckSecurity. SettingActivity checkbox default is unchecked (false).",
+          "description": "AppConst.CurrentCheckSecurity. Whether inventory should interpret security bits. Independent of which methods the library uses.",
           "type": "boolean"
         },
-        "securityType": {
-          "description": "AppConst.CurrentSecurityType. arrays.xml securityType spinner: AFI + EAS=0, EAS=1, AFI=2.",
-          "type": "string",
-          "enum": ["AFI_EAS", "EAS", "AFI"]
-        },
-        "afiInLib": {
-          "description": "AppConst.CurrentAfiInLib. Two hex digits written by RPan.doWriteAIF. Setting UI hint is 07.",
-          "type": "string",
-          "pattern": "^[0-9A-Fa-f]{2}$"
-        },
-        "afiOutLib": {
-          "description": "AppConst.CurrentAfiOutLib. Two hex digits. Setting UI hint is C2.",
-          "type": "string",
-          "pattern": "^[0-9A-Fa-f]{2}$"
-        },
         "onlyReadBookUid": {
-          "description": "AppConst.OnlyReadBookUID. ReadTagDataUseCase default is false.",
+          "description": "AppConst.OnlyReadBookUID. ReadTagDataUseCase default is false. Applies to HF user-memory reads.",
           "type": "boolean"
         }
       }
@@ -121,6 +99,68 @@
           "type": "string",
           "enum": ["SHELF_AND_CLC", "SHELF", "CLC"]
         }
+      }
+    }
+  },
+  "$defs": {
+    "afiHex": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{2}$"
+    },
+    "hfEncoding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "standard", "security"],
+      "properties": {
+        "type": { "const": "HF" },
+        "standard": {
+          "description": "ISO 28560-2 and GB/T 35660.2 share the current Iso28560 decoder this release.",
+          "type": "string",
+          "enum": ["ISO28560_2", "GBT35660_2"]
+        },
+        "security": { "$ref": "#/$defs/hfSecurity" }
+      }
+    },
+    "uhfEncoding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "standard", "security"],
+      "properties": {
+        "type": { "const": "UHF" },
+        "standard": {
+          "description": "CULTU_V4 is the only UHF decoder this release. ISO28560_4 and GBT35660_3 may be provisioned.",
+          "type": "string",
+          "enum": ["CULTU_V4", "ISO28560_4", "GBT35660_3"]
+        },
+        "security": { "$ref": "#/$defs/uhfSecurity" }
+      }
+    },
+    "hfSecurity": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": { "type": { "enum": ["None", "EAS"] } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "afiInLib", "afiOutLib"],
+          "properties": {
+            "type": { "enum": ["AFI", "AFI_EAS"] },
+            "afiInLib": { "$ref": "#/$defs/afiHex" },
+            "afiOutLib": { "$ref": "#/$defs/afiHex" }
+          }
+        }
+      ]
+    },
+    "uhfSecurity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "None" }
       }
     }
   }

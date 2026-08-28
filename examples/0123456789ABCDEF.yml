@@ -22,12 +22,14 @@ server:
 reader:
   deviceType: RPAN
   commType: Bluetooth
-  rfidType: HF
-  dataFormat: ISO
+  encoding:
+    type: HF
+    standard: ISO28560_2
+    security:
+      type: AFI_EAS
+      afiInLib: "07"
+      afiOutLib: "C2"
   checkSecurity: false
-  securityType: AFI_EAS
-  afiInLib: "07"
-  afiOutLib: "C2"
   onlyReadBookUid: false
 
 display:

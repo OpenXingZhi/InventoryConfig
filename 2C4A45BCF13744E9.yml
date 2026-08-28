@@ -1,4 +1,4 @@
-revision: 1
+revision: 2
 
 license:
   sn: "2C4A45BCF13744E9"
@@ -9,12 +9,12 @@ server:
 reader:
   deviceType: RPAN
   commType: Bluetooth
-  rfidType: UHF
-  dataFormat: ISO
+  encoding:
+    type: UHF
+    standard: CULTU_V4
+    security:
+      type: None
   checkSecurity: false
-  securityType: AFI_EAS
-  afiInLib: "07"
-  afiOutLib: "C2"
   onlyReadBookUid: false
 
 display:
