@@ -1,4 +1,4 @@
-revision: 3
+revision: 4
 
 license:
   sn: "2C4A45BCF13744E9"
@@ -13,6 +13,9 @@ reader:
     type: UHF
     book:
       encoding: CULTU_V4
+    shelf:
+      encoding: ASCII
+      prefix: "XZ"
     security:
       type: None
   checkSecurity: false
