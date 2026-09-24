@@ -1,8 +1,7 @@
-revision: 6
+revision: 7
 
 license:
   sn: "2C4A45BCF13744E9"
-  expire: "2026-10-16"
 
 server:
   url: "http://10.2.41.118:53001"
