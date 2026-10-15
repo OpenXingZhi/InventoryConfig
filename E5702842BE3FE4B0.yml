@@ -1,0 +1,26 @@
+revision: 1
+
+license:
+  sn: "E5702842BE3FE4B0"
+
+server:
+  url: "http://10.2.41.118:53001"
+
+reader:
+  deviceType: RPAN
+  commType: Bluetooth
+  encoding:
+    type: UHF
+    book:
+      encoding: CULTU_V4
+    shelf:
+      encoding: ASCII
+      prefix: "XZ"
+    security:
+      type: None
+  checkSecurity: false
+  onlyReadBookUid: false
+
+display:
+  showShelfDescription: false
+  sort: SHELF_AND_CLC
